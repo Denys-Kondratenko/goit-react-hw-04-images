@@ -1,7 +1,7 @@
 import { Oval } from 'react-loader-spinner';
 import { Spiner } from './Loader.styled';
 
-export const Loader = isLoading => {
+export const Loader = () => {
   return (
     <Spiner>
       <Oval

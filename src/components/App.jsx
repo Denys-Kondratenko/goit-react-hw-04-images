@@ -1,43 +1,38 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
 import { GlobalStyle } from './GlobalStyle';
 import { Layout } from './Layout/Layout';
 import { Section } from './Section/Section';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 
-export class App extends Component {
-  state = {
-    imagesName: '',
-    page: 1,
+export const App = () => {
+  const [imagesName, setImagesName] = useState('');
+  const [page, setPage] = useState(12);
+
+  const handleFormSubmit = imagesName => {
+    setImagesName(imagesName);
+    setPage(1);
   };
 
-  handleFormSubmit = imagesName => {
-    this.setState({ imagesName, page: 1 });
+  const handleNextPage = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  handleNextPage = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-  };
-
-  render() {
-    return (
-      <>
+  return (
+    <>
+      <Section>
+        <Searchbar onSubmit={handleFormSubmit} />
+      </Section>
+      <Layout>
         <Section>
-          <Searchbar onSubmit={this.handleFormSubmit} />
+          <ImageGallery
+            imagesName={imagesName}
+            handleNextPage={handleNextPage}
+            page={page}
+          />
         </Section>
-        <Layout>
-          <Section>
-            <ImageGallery
-              imagesName={this.state.imagesName}
-              handleNextPage={this.handleNextPage}
-              page={this.state.page}
-            />
-          </Section>
-          <GlobalStyle />
-        </Layout>
-      </>
-    );
-  }
-}
+        <GlobalStyle />
+      </Layout>
+    </>
+  );
+};
