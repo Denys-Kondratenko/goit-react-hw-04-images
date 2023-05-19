@@ -9,8 +9,8 @@ import { fetchImage } from 'api';
 
 export const ImageGallery = ({ imagesName, page, handleNextPage }) => {
   const [images, setImages] = useState([]);
-  const [error, setError] = useState(null);
-  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState(false);
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
     setImages([]);
@@ -18,15 +18,17 @@ export const ImageGallery = ({ imagesName, page, handleNextPage }) => {
 
   const FetchAPI = useCallback(async () => {
     try {
+      setError(false);
+      setLoader(true);
       const fetchedImage = await fetchImage(imagesName, page);
       if (fetchedImage.length === 0) {
         throw new Error();
       }
       setImages(prevState => [...prevState, ...fetchedImage]);
-      setStatus('resolved');
+      setLoader(false);
     } catch (error) {
+      setLoader(false);
       setError('No images');
-      setStatus('rejected');
     }
   }, [imagesName, page]);
 
@@ -34,34 +36,25 @@ export const ImageGallery = ({ imagesName, page, handleNextPage }) => {
     if (!imagesName) {
       return;
     }
-    setStatus('pending');
-    setError(null);
     FetchAPI();
   }, [FetchAPI, imagesName]);
 
-  if (status === 'resolved') {
-    return (
-      <>
+  return (
+    <>
+      {images.length !== 0 && (
         <ImageList>
-          {images &&
-            images.map(item => (
-              <ImageItem key={item.id}>
-                <ImageGalleryItem item={item} />
-              </ImageItem>
-            ))}
+          {images.map(item => (
+            <ImageItem key={item.id}>
+              <ImageGalleryItem item={item} />
+            </ImageItem>
+          ))}
         </ImageList>
-        <Button onClick={handleNextPage} />
-      </>
-    );
-  }
-
-  if (status === 'rejected') {
-    return <p>{error}</p>;
-  }
-
-  if (status === 'pending') {
-    return <Loader />;
-  }
+      )}
+      {loader && <Loader />}
+      {images.length !== 0 && <Button onClick={handleNextPage} />}
+      {error && <p>{error}</p>}
+    </>
+  );
 };
 
 ImageGallery.propTypes = {
